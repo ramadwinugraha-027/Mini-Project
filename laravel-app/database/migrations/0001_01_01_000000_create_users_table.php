@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            // Menambahkan kolom role dengan default 'pelapor'
+            $table->string('role')->default('pelapor'); // Nilai: pelapor, pemantau, koordinator
             $table->rememberToken();
             $table->timestamps();
         });
