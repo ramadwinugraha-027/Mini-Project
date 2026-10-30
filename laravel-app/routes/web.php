@@ -22,4 +22,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/create', [ReportController::class, 'create'])->name('reports.create');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/reports/create', [ReportController::class, 'create'])->name('reports.create');
+    Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
 });

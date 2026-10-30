@@ -256,7 +256,7 @@
             Pastikan data yang dimasukkan sudah benar.
         </p>
 
-        <form action="#" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('reports.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="form-group">

@@ -178,6 +178,11 @@
                 Sistem aktif sebagai <strong>{{ Auth::user()->name }}</strong> ({{ strtoupper(Auth::user()->role) }}).
             </div>
         </div>
+        @if(session('success'))
+            <div style="background: #e6f4ea; border: 1px solid #c2e7cc; color: #137333; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+                {{ session('success') }}
+            </div>
+        @endif
     </main>
 
 </body>
