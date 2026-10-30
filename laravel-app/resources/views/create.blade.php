@@ -256,7 +256,7 @@
             Pastikan data yang dimasukkan sudah benar.
         </p>
 
-        <form action="#" method="POST">
+        <form action="#" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="form-group">
@@ -345,6 +345,21 @@
 
                 <small class="field-description">
                     Jelaskan keluhan secara jelas agar laporan mudah dipahami.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="evidence">
+                    Bukti Pendukung
+                </label>
+                <input
+                    type="file"
+                    id="evidence"
+                    name="evidence"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                >
+                <small class="field-description">
+                    Unggah 1 file pendukung format JPG, PNG, atau PDF (maksimal 2 MB).
                 </small>
             </div>
 
