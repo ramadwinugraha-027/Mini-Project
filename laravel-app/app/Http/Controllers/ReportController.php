@@ -86,4 +86,39 @@ class ReportController extends Controller
 
         return view('reports_show', compact('report'));
     }
+
+    public function edit(Report $report): View
+    {
+        Gate::authorize('update', $report);
+
+        $report->load(['school', 'mbgDistribution']);
+
+        return view('reports_edit', compact('report'));
+    }
+
+    public function update(Request $request, Report $report): RedirectResponse
+    {
+        Gate::authorize('update', $report);
+
+        $validated = $request->validate([
+            'affected_count' => ['required', 'integer', 'min:1'],
+            'symptoms_description' => ['required', 'string'],
+            'evidence' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
+        ], [
+            'evidence.mimes' => 'File bukti harus berformat JPG, JPEG, PNG, atau PDF.',
+            'evidence.max' => 'Ukuran file bukti tidak boleh melebihi 2 MB.',
+        ]);
+
+        if ($request->hasFile('evidence')) {
+            $validated['evidence_path'] = $request->file('evidence')->store('evidence', 'public');
+        }
+
+        $report->update([
+            'affected_count' => $validated['affected_count'],
+            'symptoms_description' => $validated['symptoms_description'],
+            'evidence_path' => $validated['evidence_path'] ?? $report->evidence_path,
+        ]);
+
+        return redirect()->route('reports.show', $report)->with('success', 'Laporan berhasil diperbarui.');
+    }
 }
