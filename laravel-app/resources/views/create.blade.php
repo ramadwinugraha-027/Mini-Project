@@ -79,6 +79,27 @@
             margin-bottom: 25px;
         }
 
+        .alert-error {
+            background: #fff5f5;
+            border: 1px solid #f2c6c6;
+            color: #a82e2e;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 22px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .alert-error strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .alert-error ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
         .form-group {
             margin-bottom: 22px;
         }
@@ -258,6 +279,17 @@
 
         <form action="{{ route('reports.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
+
+            @if ($errors->any())
+                <div class="alert-error">
+                    <strong>Terdapat kesalahan pada isian formulir:</strong>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <div class="form-group">
                 <label for="school_id">

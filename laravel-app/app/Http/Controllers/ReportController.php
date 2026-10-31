@@ -18,7 +18,7 @@ class ReportController extends Controller
         return view('create', compact('schools'));
     }
 
-    public function store(Request $request): RedirectResponse
+        public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'school_id' => ['required', 'exists:schools,id'],
@@ -26,7 +26,10 @@ class ReportController extends Controller
             'incident_date' => ['required', 'date'],
             'affected_count' => ['required', 'integer', 'min:1'],
             'symptoms_description' => ['required', 'string'],
-            'evidence' => ['nullable', 'file'],
+            'evidence' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
+        ], [
+            'evidence.mimes' => 'File bukti harus berformat JPG, JPEG, PNG, atau PDF.',
+            'evidence.max' => 'Ukuran file bukti tidak boleh melebihi 2 MB.',
         ]);
 
         $evidencePath = null;
