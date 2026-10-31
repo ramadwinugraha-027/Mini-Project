@@ -108,10 +108,21 @@
             font-weight: 600;
             text-decoration: none;
             border-radius: 6px;
+            transition: background-color 0.15s ease;
         }
 
         .btn-action:hover {
             background-color: #1d4ed8;
+        }
+
+        .alert-success {
+            background: #e6f4ea;
+            border: 1px solid #c2e7cc;
+            color: #137333;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
         }
 
         .card {
@@ -122,14 +133,74 @@
             margin-bottom: 1.5rem;
         }
 
-        .status-box {
-            background-color: #f1f5f9;
-            border-left: 4px solid #3b82f6;
-            padding: 1rem;
-            border-radius: 0 6px 6px 0;
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 1rem;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
             font-size: 0.875rem;
-            line-height: 1.5;
-            color: #334155;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        .status-tag {
+            display: inline-block;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .status-diajukan { background-color: #e0f2fe; color: #0369a1; }
+        .status-ditinjau { background-color: #fef3c7; color: #b45309; }
+        .status-diteruskan { background-color: #e0e7ff; color: #4338ca; }
+        .status-selesai { background-color: #dcfce7; color: #15803d; }
+
+        .btn-detail {
+            color: #1e40af;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.8125rem;
+        }
+
+        .btn-detail:hover {
+            text-decoration: underline;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: #64748b;
+            font-size: 0.875rem;
         }
     </style>
 </head>
@@ -173,16 +244,60 @@
             @endif
         </div>
 
-        <div class="card">
-            <div class="status-box">
-                Sistem aktif sebagai <strong>{{ Auth::user()->name }}</strong> ({{ strtoupper(Auth::user()->role) }}).
-            </div>
-        </div>
         @if(session('success'))
-            <div style="background: #e6f4ea; border: 1px solid #c2e7cc; color: #137333; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+            <div class="alert-success">
                 {{ session('success') }}
             </div>
         @endif
+
+        <div class="card">
+            <div class="card-title">
+                @if(Auth::user()->isPelapor())
+                    Riwayat Laporan Saya
+                @else
+                    Daftar Semua Laporan Masuk
+                @endif
+            </div>
+
+            @if($reports->isEmpty())
+                <div class="empty-state">
+                    Belum ada laporan keluhan yang tercatat di dalam sistem.
+                </div>
+            @else
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tanggal Kejadian</th>
+                                <th>Sekolah</th>
+                                <th>Menu Distribusi</th>
+                                <th>Korban</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($reports as $report)
+                                <tr>
+                                    <td>{{ $report->incident_date->format('d/m/Y') }}</td>
+                                    <td>{{ $report->school->name }}</td>
+                                    <td>{{ $report->mbgDistribution->menu_description }}</td>
+                                    <td>{{ $report->affected_count }} orang</td>
+                                    <td>
+                                        <span class="status-tag status-{{ $report->status }}">
+                                            {{ $report->status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('reports.show', $report->id) }}" class="btn-detail">Lihat Detail</a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
     </main>
 
 </body>

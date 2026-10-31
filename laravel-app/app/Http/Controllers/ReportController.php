@@ -11,6 +11,26 @@ use Illuminate\Http\RedirectResponse;
 
 class ReportController extends Controller
 {
+    public function index(): View
+    {
+        $user = Auth::user();
+
+        // Pelapor hanya melihat laporannya sendiri
+        if ($user->isPelapor()) {
+            $reports = Report::with(['school', 'mbgDistribution'])
+                ->where('user_id', $user->id)
+                ->latest()
+                ->get();
+        } else {
+            // Pemantau & Koordinator dapat melihat seluruh laporan masuk
+            $reports = Report::with(['school', 'mbgDistribution', 'user'])
+                ->latest()
+                ->get();
+        }
+
+        return view('dashboard', compact('reports'));
+    }
+
     public function create(): View
     {
         $schools = School::orderBy('name')->get();
@@ -18,7 +38,7 @@ class ReportController extends Controller
         return view('create', compact('schools'));
     }
 
-        public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'school_id' => ['required', 'exists:schools,id'],
@@ -49,5 +69,12 @@ class ReportController extends Controller
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Laporan kejadian berhasil dikirim dan tersimpan.');
+    }
+
+    public function show(Report $report): View
+    {
+        $report->load(['school', 'mbgDistribution', 'user']);
+
+        return view('reports_show', compact('report'));
     }
 }
