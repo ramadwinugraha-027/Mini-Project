@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\School;
 use App\Models\Report;
+use App\Models\MbgDistribution;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -15,14 +17,12 @@ class ReportController extends Controller
     {
         $user = Auth::user();
 
-        // Pelapor hanya melihat laporannya sendiri
         if ($user->isPelapor()) {
             $reports = Report::with(['school', 'mbgDistribution'])
                 ->where('user_id', $user->id)
                 ->latest()
                 ->get();
         } else {
-            // Pemantau & Koordinator dapat melihat seluruh laporan masuk
             $reports = Report::with(['school', 'mbgDistribution', 'user'])
                 ->latest()
                 ->get();
@@ -52,6 +52,13 @@ class ReportController extends Controller
             'evidence.max' => 'Ukuran file bukti tidak boleh melebihi 2 MB.',
         ]);
 
+        $distribution = MbgDistribution::findOrFail($validated['mbg_distribution_id']);
+        if ($validated['incident_date'] < $distribution->distribution_date->format('Y-m-d')) {
+            return back()->withErrors([
+                'incident_date' => 'Tanggal kejadian tidak boleh mendahului tanggal distribusi makanan (' . $distribution->distribution_date->format('d/m/Y') . ').',
+            ])->withInput();
+        }
+
         $evidencePath = null;
         if ($request->hasFile('evidence')) {
             $evidencePath = $request->file('evidence')->store('evidence', 'public');
@@ -73,6 +80,8 @@ class ReportController extends Controller
 
     public function show(Report $report): View
     {
+        Gate::authorize('view', $report);
+
         $report->load(['school', 'mbgDistribution', 'user']);
 
         return view('reports_show', compact('report'));
