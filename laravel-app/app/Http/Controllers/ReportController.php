@@ -84,7 +84,11 @@ class ReportController extends Controller
 
         $report->load(['school', 'mbgDistribution', 'user']);
 
-        return view('reports_show', compact('report'));
+        $relatedReportsCount = Report::where('mbg_distribution_id', $report->mbg_distribution_id)
+            ->where('id', '!=', $report->id)
+            ->count();
+
+        return view('reports_show', compact('report', 'relatedReportsCount'));
     }
 
     public function edit(Report $report): View
@@ -120,5 +124,48 @@ class ReportController extends Controller
         ]);
 
         return redirect()->route('reports.show', $report)->with('success', 'Laporan berhasil diperbarui.');
+    }
+
+    public function review(Request $request, Report $report): RedirectResponse
+    {
+        Gate::authorize('review', $report);
+
+        $validated = $request->validate([
+            'notes' => ['required', 'string'],
+        ]);
+
+        $report->update([
+            'status' => 'ditinjau',
+            'notes' => $validated['notes'],
+        ]);
+
+        return redirect()->route('reports.show', $report)->with('success', 'Laporan berhasil diverifikasi dan ditandai ditinjau.');
+    }
+
+    public function forward(Request $request, Report $report): RedirectResponse
+    {
+        Gate::authorize('forward', $report);
+
+        $validated = $request->validate([
+            'forwarded_to' => ['required_if:action,forward', 'nullable', 'string'],
+            'action' => ['required', 'in:forward,finish'],
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        if ($validated['action'] === 'forward') {
+            $report->update([
+                'status' => 'diteruskan',
+                'forwarded_to' => $validated['forwarded_to'],
+                'notes' => $validated['notes'] ? ($report->notes ? $report->notes . "\n[Koordinator]: " . $validated['notes'] : $validated['notes']) : $report->notes,
+            ]);
+            $msg = 'Laporan berhasil dicatat telah diteruskan ke pihak eksternal.';
+        } else {
+            $report->update([
+                'status' => 'selesai',
+            ]);
+            $msg = 'Laporan telah diselesaikan.';
+        }
+
+        return redirect()->route('reports.show', $report)->with('success', $msg);
     }
 }

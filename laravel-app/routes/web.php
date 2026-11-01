@@ -23,5 +23,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/{report}/edit', [ReportController::class, 'edit'])->name('reports.edit');
     Route::put('/reports/{report}', [ReportController::class, 'update'])->name('reports.update');
 
+    Route::post('/reports/{report}/review', [ReportController::class, 'review'])->name('reports.review');
+    Route::post('/reports/{report}/forward', [ReportController::class, 'forward'])->name('reports.forward');
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

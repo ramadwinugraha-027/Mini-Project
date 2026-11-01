@@ -20,4 +20,14 @@ class ReportPolicy
     {
         return $report->user_id === $user->id && $report->status === 'diajukan';
     }
+
+    public function review(User $user, Report $report): bool
+    {
+        return $user->isPemantau() && $report->status === 'diajukan';
+    }
+
+    public function forward(User $user, Report $report): bool
+    {
+        return $user->isKoordinator() && in_array($report->status, ['ditinjau', 'diteruskan']);
+    }
 }
