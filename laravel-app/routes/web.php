@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MbgDistributionController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RekapController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/', [AuthController::class, 'showLoginForm']);
@@ -27,4 +28,5 @@ Route::middleware('auth')->group(function () {
     Route::post('/reports/{report}/forward', [ReportController::class, 'forward'])->name('reports.forward');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/rekap', [RekapController::class, 'index'])->name('rekap.index');
 });
